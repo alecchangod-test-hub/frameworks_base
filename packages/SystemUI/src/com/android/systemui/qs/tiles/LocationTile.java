@@ -54,6 +54,7 @@ public class LocationTile extends QSTileImpl<BooleanState> {
     private static final int SENSORS_ONLY = Settings.Secure.LOCATION_MODE_SENSORS_ONLY;
     private static final int HIGH_ACCURACY = Settings.Secure.LOCATION_MODE_HIGH_ACCURACY;
     private static final int OFF = Settings.Secure.LOCATION_MODE_OFF;
+    public static final String TILE_SPEC = "location";
 
     private final LocationController mController;
     private final KeyguardStateController mKeyguard;

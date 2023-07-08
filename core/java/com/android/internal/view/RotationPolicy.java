@@ -113,8 +113,9 @@ public final class RotationPolicy {
      * Enables or disables rotation lock from the system UI toggle.
      */
     public static void setRotationLock(Context context, final boolean enabled) {
-        final int rotation = isCurrentRotationAllowed(context)
-                ? CURRENT_ROTATION : getNaturalRotation();
+        final int rotation = areAllRotationsAllowed(context)
+                || useCurrentRotationOnRotationLockChange(context) ? CURRENT_ROTATION
+                : NATURAL_ROTATION;
         setRotationLockAtAngle(context, enabled, rotation);
     }
 
@@ -177,6 +178,11 @@ public final class RotationPolicy {
             Log.w(TAG, "Unable to getWindowManagerService.getDefaultDisplayRotation()");
         }
         return false;
+    }
+
+    private static boolean useCurrentRotationOnRotationLockChange(Context context) {
+        return context.getResources().getBoolean(
+                R.bool.config_useCurrentRotationOnRotationLockChange);
     }
 
     private static void setRotationLock(final boolean enabled, final int rotation) {

@@ -3280,7 +3280,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
         if (Objects.equals(packageName, PLATFORM_PACKAGE_NAME)) {
             return true;
         }
-        if (!pkg.isPrivileged()) {
+        if (!(pkg.isSystem() && pkg.isPrivileged())) {
             return true;
         }
         if (!mPrivilegedPermissionAllowlistSourcePackageNames
@@ -4227,7 +4227,6 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
         }
         boolean changed = false;
 
-        Set<Permission> needsUpdate = null;
         synchronized (mLock) {
             final Iterator<Permission> it = mRegistry.getPermissionTrees().iterator();
             while (it.hasNext()) {
@@ -4245,26 +4244,6 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
                     Slog.i(TAG, "Removing permission tree " + bp.getName()
                             + " that used to be declared by " + bp.getPackageName());
                     it.remove();
-                }
-                if (needsUpdate == null) {
-                    needsUpdate = new ArraySet<>();
-                }
-                needsUpdate.add(bp);
-            }
-        }
-        if (needsUpdate != null) {
-            for (final Permission bp : needsUpdate) {
-                final AndroidPackage sourcePkg =
-                        mPackageManagerInt.getPackage(bp.getPackageName());
-                final PackageStateInternal sourcePs =
-                        mPackageManagerInt.getPackageStateInternal(bp.getPackageName());
-                synchronized (mLock) {
-                    if (sourcePkg != null && sourcePs != null) {
-                        continue;
-                    }
-                    Slog.w(TAG, "Removing dangling permission tree: " + bp.getName()
-                            + " from package " + bp.getPackageName());
-                    mRegistry.removePermission(bp.getName());
                 }
             }
         }

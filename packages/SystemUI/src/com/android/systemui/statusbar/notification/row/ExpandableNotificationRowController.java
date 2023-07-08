@@ -224,6 +224,7 @@ public class ExpandableNotificationRowController implements NotifViewController 
                 mMetricsLogger,
                 mSmartReplyConstants,
                 mSmartReplyController,
+                mFeatureFlags,
                 mStatusBarService
         );
         mView.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
@@ -316,7 +317,7 @@ public class ExpandableNotificationRowController implements NotifViewController 
         }
         mView.removeChildNotification(childView);
         if (!isTransfer) {
-            mListContainer.notifyGroupChildRemoved(childView, mView);
+            mListContainer.notifyGroupChildRemoved(childView, mView.getChildrenContainer());
         }
     }
 

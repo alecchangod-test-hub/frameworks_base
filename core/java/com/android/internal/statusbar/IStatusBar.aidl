@@ -353,4 +353,10 @@ oneway interface IStatusBar
 
     void screenPinningStateChanged(boolean enabled);
     void leftInLandscapeChanged(boolean isLeft);
+    /**
+     * Shows the media output switcher dialog.
+     *
+     * @param packageName of the session for which the output switcher is shown.
+     */
+    void showMediaOutputSwitcher(String packageName);
 }

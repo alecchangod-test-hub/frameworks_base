@@ -31,6 +31,7 @@ import com.android.systemui.plugins.ClockController
 import com.android.systemui.plugins.ClockEvents
 import com.android.systemui.plugins.ClockFaceController
 import com.android.systemui.plugins.ClockFaceEvents
+import com.android.systemui.plugins.ClockSettings
 import com.android.systemui.plugins.log.LogBuffer
 import java.io.PrintWriter
 import java.util.Locale
@@ -50,6 +51,7 @@ class DefaultClockController(
     val ctx: Context,
     private val layoutInflater: LayoutInflater,
     private val resources: Resources,
+    private val settings: ClockSettings?,
 ) : ClockController {
     override val smallClock: DefaultClockFaceController
     override val largeClock: LargeClockFaceController
@@ -72,12 +74,14 @@ class DefaultClockController(
         smallClock =
             DefaultClockFaceController(
                 layoutInflater.inflate(R.layout.clock_default_small, parent, false)
-                    as AnimatableClockView
+                    as AnimatableClockView,
+                settings?.seedColor
             )
         largeClock =
             LargeClockFaceController(
                 layoutInflater.inflate(R.layout.clock_default_large, parent, false)
-                    as AnimatableClockView
+                    as AnimatableClockView,
+                settings?.seedColor
             )
         clocks = listOf(smallClock.view, largeClock.view)
 
@@ -93,6 +97,8 @@ class DefaultClockController(
         events.onTimeZoneChanged(TimeZone.getDefault())
         events.onTimeTick()
         smallClock.updateColor()
+        smallClock.events.onTimeTick()
+        largeClock.events.onTimeTick()
     }
 
     override fun setLogBuffer(logBuffer: LogBuffer) {
@@ -104,6 +110,7 @@ class DefaultClockController(
 
     open inner class DefaultClockFaceController(
         override val view: AnimatableClockView,
+        var seedColor: Int?,
     ) : ClockFaceController {
 
         // MAGENTA is a placeholder, and will be assigned correctly in initialize
@@ -113,12 +120,23 @@ class DefaultClockController(
         val Int.dp: Int get() = (this / Resources.getSystem().displayMetrics.density).toInt()
 	val Int.px: Int get() = (this * Resources.getSystem().displayMetrics.density).toInt()
 
+        override var logBuffer: LogBuffer?
+            get() = view.logBuffer
+            set(value) {
+                view.logBuffer = value
+            }
+
         init {
-            view.setColors(currentColor, currentColor)
+            if (seedColor != null) {
+                currentColor = seedColor!!
+            }
+            view.setColors(DOZE_COLOR, currentColor)
         }
 
         override val events =
             object : ClockFaceEvents {
+                override fun onTimeTick() = view.refreshTime()
+
                 override fun onRegionDarknessChanged(isRegionDark: Boolean) {
                     this@DefaultClockFaceController.isRegionDark = isRegionDark
                     updateColor()
@@ -155,6 +173,10 @@ class DefaultClockController(
                         customClockColor.toInt()
                     else
                         resources.getColor(android.R.color.system_accent1_100)
+                } else if (seedColor != null) {
+                    seedColor!!
+                } else if (isRegionDark) {
+                    resources.getColor(android.R.color.system_accent1_100)
                 } else {
                     if (customClockColorEnabled)
                         customClockColor.toInt()
@@ -176,7 +198,8 @@ class DefaultClockController(
 
     inner class LargeClockFaceController(
         view: AnimatableClockView,
-    ) : DefaultClockFaceController(view) {
+        seedColor: Int?,
+    ) : DefaultClockFaceController(view, seedColor) {
         override fun recomputePadding(targetRegion: Rect?) {
             // We center the view within the targetRegion instead of within the parent
             // view by computing the difference and adding that to the padding.
@@ -196,8 +219,6 @@ class DefaultClockController(
     }
 
     inner class DefaultClockEvents : ClockEvents {
-        override fun onTimeTick() = clocks.forEach { it.refreshTime() }
-
         override fun onTimeFormatChanged(is24Hr: Boolean) =
             clocks.forEach { it.refreshFormat(is24Hr) }
 
@@ -205,6 +226,14 @@ class DefaultClockController(
             clocks.forEach { it.onTimeZoneChanged(timeZone) }
 
         override fun onColorPaletteChanged(resources: Resources) {
+            largeClock.updateColor()
+            smallClock.updateColor()
+        }
+
+        override fun onSeedColorChanged(seedColor: Int?) {
+            largeClock.seedColor = seedColor
+            smallClock.seedColor = seedColor
+
             largeClock.updateColor()
             smallClock.updateColor()
         }

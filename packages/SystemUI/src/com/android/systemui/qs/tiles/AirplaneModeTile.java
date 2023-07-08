@@ -57,7 +57,10 @@ import javax.inject.Inject;
 import dagger.Lazy;
 
 /** Quick settings tile: Airplane mode **/
-public class AirplaneModeTile extends SecureQSTile<BooleanState> {
+public class AirplaneModeTile extends QSTileImpl<BooleanState> {
+
+    public static final String TILE_SPEC = "airplane";
+
     private final SettingObserver mSetting;
     private final BroadcastDispatcher mBroadcastDispatcher;
     private final Lazy<ConnectivityManager> mLazyConnectivityManager;

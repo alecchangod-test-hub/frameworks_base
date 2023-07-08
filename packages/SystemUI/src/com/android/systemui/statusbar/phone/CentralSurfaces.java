@@ -54,6 +54,7 @@ import com.android.systemui.shade.NotificationShadeWindowViewController;
 import com.android.systemui.statusbar.LightRevealScrim;
 import com.android.systemui.statusbar.NotificationPresenter;
 import com.android.systemui.statusbar.policy.GameSpaceManager;
+import com.android.systemui.util.Compile;
 
 import java.io.PrintWriter;
 
@@ -72,6 +73,7 @@ public interface CentralSurfaces extends Dumpable, ActivityStarter, LifecycleOwn
     boolean DEBUG_MEDIA_FAKE_ARTWORK = false;
     boolean DEBUG_CAMERA_LIFT = false;
     boolean DEBUG_WINDOW_STATE = false;
+    boolean DEBUG_WAKEUP_DELAY = Compile.IS_DEBUG;
     // additional instrumentation for testing purposes; intended to be left on during development
     boolean CHATTY = DEBUG;
     boolean SHOW_LOCKSCREEN_MEDIA_ARTWORK = true;
@@ -377,8 +379,6 @@ public interface CentralSurfaces extends Dumpable, ActivityStarter, LifecycleOwn
     void fadeKeyguardAfterLaunchTransition(Runnable beforeFading,
             Runnable endRunnable, Runnable cancelRunnable);
 
-    void animateKeyguardUnoccluding();
-
     void startLaunchTransitionTimeout();
 
     boolean hideKeyguardImpl(boolean forceStateChange);
@@ -546,6 +546,7 @@ public interface CentralSurfaces extends Dumpable, ActivityStarter, LifecycleOwn
     void setBlockedGesturalNavigation(boolean blocked);
 
     GameSpaceManager getGameSpaceManager();
+    boolean shouldDelayWakeUpAnimation();
 
     public static class KeyboardShortcutsMessage {
         final int mDeviceId;

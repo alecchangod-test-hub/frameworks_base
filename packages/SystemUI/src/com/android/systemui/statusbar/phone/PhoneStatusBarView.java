@@ -40,6 +40,7 @@ import android.widget.LinearLayout;
 
 import com.android.internal.policy.SystemBarUtils;
 import com.android.systemui.Dependency;
+import com.android.systemui.Gefingerpoken;
 import com.android.systemui.R;
 import com.android.systemui.plugins.DarkIconDispatcher;
 import com.android.systemui.plugins.DarkIconDispatcher.DarkReceiver;
@@ -87,6 +88,7 @@ public class PhoneStatusBarView extends FrameLayout implements TunerService.Tuna
     private TouchEventHandler mTouchEventHandler;
     @Nullable
     private ViewGroup mStatusBarContents = null;
+    private Gefingerpoken mTouchEventHandler;
 
     /**
      * Draw this many pixels into the left/right side of the cutout to optimally use the space
@@ -98,7 +100,7 @@ public class PhoneStatusBarView extends FrameLayout implements TunerService.Tuna
         mContentInsetsProvider = Dependency.get(StatusBarContentInsetsProvider.class);
     }
 
-    void setTouchEventHandler(TouchEventHandler handler) {
+    void setTouchEventHandler(Gefingerpoken handler) {
         mTouchEventHandler = handler;
     }
 
@@ -230,7 +232,7 @@ public class PhoneStatusBarView extends FrameLayout implements TunerService.Tuna
             );
             return true;
         }
-        return mTouchEventHandler.handleTouchEvent(event);
+        return mTouchEventHandler.onTouchEvent(event);
     }
 
     @Override

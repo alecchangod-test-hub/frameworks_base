@@ -70,11 +70,24 @@ import com.android.systemui.qs.tiles.WorkModeTile;
 import com.android.systemui.util.leak.GarbageMonitor;
 import com.android.systemui.qs.tiles.CaffeineTile;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 import dagger.Lazy;
 
+/**
+ * A factory that creates Quick Settings tiles based on a tileSpec
+ *
+ * To create a new tile within SystemUI, the tile class should extend {@link QSTileImpl} and have
+ * a public static final TILE_SPEC field which serves as a unique key for this tile. (e.g. {@link
+ * com.android.systemui.qs.tiles.DreamTile#TILE_SPEC})
+ *
+ * After, create or find an existing Module class to house the tile's binding method (e.g. {@link
+ * com.android.systemui.accessibility.AccessibilityModule}). If creating a new module, add your
+ * module to the SystemUI dagger graph by including it in an appropriate module.
+ */
 @SysUISingleton
 public class QSFactoryImpl implements QSFactory {
 
@@ -123,6 +136,8 @@ public class QSFactoryImpl implements QSFactory {
     private final Provider<WeatherTile> mWeatherTileProvider;
     private final Provider<PreferredNetworkTile> mPreferredNetworkTileProvider;
 
+    protected final Map<String, Provider<QSTileImpl<?>>> mTileMap;
+
     private final Lazy<QSHost> mQsHostLazy;
     private final Provider<CustomTile.Builder> mCustomTileBuilderProvider;
 
@@ -130,6 +145,7 @@ public class QSFactoryImpl implements QSFactory {
     public QSFactoryImpl(
             Lazy<QSHost> qsHostLazy,
             Provider<CustomTile.Builder> customTileBuilderProvider,
+<<<<<<< HEAD
             Provider<WifiTile> wifiTileProvider,
             Provider<InternetTile> internetTileProvider,
             Provider<BluetoothTile> bluetoothTileProvider,
@@ -171,7 +187,9 @@ public class QSFactoryImpl implements QSFactory {
             Provider<RebootTile> rebootTileProvider,
             Provider<AODTile> aodTileProvider,
             Provider<WeatherTile> weatherTileProvider,
-            Provider<PreferredNetworkTile> preferredNetworkTileProvider) {
+            Provider<PreferredNetworkTile> preferredNetworkTileProvider,
+            Map<String, Provider<QSTileImpl<?>>> tileMap) {
+
         mQsHostLazy = qsHostLazy;
         mCustomTileBuilderProvider = customTileBuilderProvider;
 
@@ -217,6 +235,9 @@ public class QSFactoryImpl implements QSFactory {
         mAODTileProvider = aodTileProvider;
         mWeatherTileProvider = weatherTileProvider;
         mPreferredNetworkTileProvider = preferredNetworkTileProvider;
+        mQsHostLazy = qsHostLazy;
+        mCustomTileBuilderProvider = customTileBuilderProvider;
+        mTileMap = tileMap;
     }
 
     /** Creates a tile with a type based on {@code tileSpec} */
@@ -233,6 +254,7 @@ public class QSFactoryImpl implements QSFactory {
     @Nullable
     protected QSTileImpl createTileInternal(String tileSpec) {
         // Stock tiles.
+<<<<<<< HEAD
         switch (tileSpec) {
             case "wifi":
                 return mWifiTileProvider.get();
@@ -316,6 +338,12 @@ public class QSFactoryImpl implements QSFactory {
                 return mWeatherTileProvider.get();
             case "preferred_network":
                 return mPreferredNetworkTileProvider.get();
+        }
+
+        if (mTileMap.containsKey(tileSpec)
+                // We should not return a Garbage Monitory Tile if the build is not Debuggable
+                && (!tileSpec.equals(GarbageMonitor.MemoryTile.TILE_SPEC) || Build.IS_DEBUGGABLE)) {
+            return mTileMap.get(tileSpec).get();
         }
 
         // Custom tiles

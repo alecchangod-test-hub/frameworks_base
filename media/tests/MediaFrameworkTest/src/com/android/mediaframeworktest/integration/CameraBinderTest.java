@@ -159,7 +159,9 @@ public class CameraBinderTest extends AndroidTestCase {
                     .connect(dummyCallbacks, cameraId, clientPackageName,
                             ICameraService.USE_CALLING_UID,
                             ICameraService.USE_CALLING_PID,
-                            getContext().getApplicationInfo().targetSdkVersion);
+                            getContext().getApplicationInfo().targetSdkVersion,
+                            /*overrideToPortrait*/false,
+                            /*forceSlowJpegMode*/false);
             assertNotNull(String.format("Camera %s was null", cameraId), cameraUser);
 
             Log.v(TAG, String.format("Camera %s connected", cameraId));

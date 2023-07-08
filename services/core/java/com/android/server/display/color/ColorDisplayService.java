@@ -661,7 +661,7 @@ public final class ColorDisplayService extends SystemService {
             TintValueAnimator valueAnimator = TintValueAnimator.ofMatrix(COLOR_MATRIX_EVALUATOR,
                     from == null ? MATRIX_IDENTITY : from, to);
             tintController.setAnimator(valueAnimator);
-            valueAnimator.setDuration(TRANSITION_DURATION);
+            valueAnimator.setDuration(tintController.getTransitionDurationMilliseconds());
             valueAnimator.setInterpolator(AnimationUtils.loadInterpolator(
                     getContext(), android.R.interpolator.fast_out_slow_in));
             valueAnimator.addUpdateListener((ValueAnimator animator) -> {

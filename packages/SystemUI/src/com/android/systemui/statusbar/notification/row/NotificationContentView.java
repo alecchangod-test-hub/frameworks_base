@@ -189,6 +189,8 @@ public class NotificationContentView extends FrameLayout implements Notification
     private boolean mRemoteInputVisible;
     private int mUnrestrictedContentHeight;
 
+    private boolean mContentAnimating;
+
     public NotificationContentView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mHybridGroupManager = new HybridGroupManager(getContext());
@@ -2131,6 +2133,34 @@ public class NotificationContentView extends FrameLayout implements Notification
             return true;
         }
         if (mExpandedRemoteInput != null && mExpandedRemoteInput.isActive()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Starts and stops animations in the underlying views.
+     * Avoids restarting the animations by checking whether they're already running first.
+     * Return value is used for testing.
+     *
+     * @param running whether to start animations running, or stop them.
+     * @return true if the state of animations changed.
+     */
+    public boolean setContentAnimationRunning(boolean running) {
+        boolean stateChangeRequired = (running != mContentAnimating);
+        if (stateChangeRequired) {
+            // Starts or stops the animations in the potential views.
+            if (mContractedWrapper != null) {
+                mContractedWrapper.setAnimationsRunning(running);
+            }
+            if (mExpandedWrapper != null) {
+                mExpandedWrapper.setAnimationsRunning(running);
+            }
+            if (mHeadsUpWrapper != null) {
+                mHeadsUpWrapper.setAnimationsRunning(running);
+            }
+            // Updates the state tracker.
+            mContentAnimating = running;
             return true;
         }
         return false;

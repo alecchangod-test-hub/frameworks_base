@@ -59,6 +59,10 @@ import javax.inject.Inject;
 public class BluetoothTile extends SecureQSTile<BooleanState> {
     private static final Intent BLUETOOTH_SETTINGS = new Intent(Settings.Panel.ACTION_BLUETOOTH);
 
+    public static final String TILE_SPEC = "bt";
+
+    private static final Intent BLUETOOTH_SETTINGS = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
+
     private final Handler mHandler;
     private final BluetoothController mController;
     private final BluetoothDialogFactory mBluetoothDialogFactory;
